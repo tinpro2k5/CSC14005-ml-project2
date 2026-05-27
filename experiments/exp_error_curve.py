@@ -1,9 +1,9 @@
 """
-exp_23_error_curve.py
+exp_error_curve.py
 ---------------------
-Thực nghiệm 2.3 – Sự hội tụ của hàm lỗi (Error Convergence)
+Thực nghiệm: Sự hội tụ của hàm lỗi (Error Convergence)
 
-Yêu cầu đồ án:
+Yêu cầu:
   - Tự sinh tập dữ liệu make_moons hoặc vòng tròn nhiễu
   - Vẽ Line chart thể hiện Training Error và Test Error giảm dần qua T vòng lặp
   - Đồ thị phải có nhãn trục, tiêu đề và caption rõ ràng
@@ -14,7 +14,7 @@ Nội dung:
   - Thu thập train_errors_ (có sẵn trong model) và tính test_errors
     bằng staged_predict() generator
   - Vẽ thêm theory_bounds_ (chặn lý thuyết Π Z_t) để kiểm chứng
-  - Xuất PDF vào figures/error_curve.pdf
+  - Xuất hình vào figures/error_curve.pdf
 """
 
 import sys

@@ -1,93 +1,68 @@
-# AdaBoost - From Scratch
+# Hướng dẫn chạy Mã nguồn (Code) - Đồ án 2: Boosting
 
-**Môn:** Nhập môn Học Máy (CSC14005) - Đồ Án 2  
-**Chương:** Boosting  
----
+Thư mục này chứa toàn bộ mã nguồn Python cài đặt thuật toán **AdaBoost** (from scratch) và các scripts chạy thực nghiệm để minh hoạ và kiểm chứng lý thuyết.
 
-## Cấu trúc thư mục
+## 1. Môi trường cài đặt (Requirements)
 
+Phiên bản Python khuyến nghị: **Python 3.10+**
 
----
+Các thư viện cần thiết được liệt kê trong `requirements.txt`:
+- `numpy`: Dùng cho phép toán ma trận và cài đặt thuật toán cốt lõi.
+- `matplotlib`: Dùng để vẽ các biểu đồ minh hoạ trực quan.
+- `scikit-learn`: **CHỈ** được dùng để gọi hàm `make_moons` nhằm tự sinh dữ liệu cho thực nghiệm.
 
-
-## Cài đặt & Sử dụng
-
+**Lệnh cài đặt:**
 ```bash
-# (Optional) Tạo môi trường ảo
+# Optional: Tạo môi trường ảo
 python -m venv venv
-source venv/bin/activate        # Linux/macOS
-venv\Scripts\activate           # Windows
+source venv/bin/activate        # Trên Linux/macOS
+venv\Scripts\activate           # Trên Windows
 
-# Cài thư viện
+# Cài đặt thư viện
 pip install -r requirements.txt
 ```
 
-### Import trong code
+## 2. Mô tả cấu trúc và chức năng từng file
 
-```python
-from src.base import BaseWeakLearner
-from src.decision_stump import DecisionStump
-from src.adaboost import AdaBoost
-
-# Khởi tạo và huấn luyện
-model = AdaBoost(n_estimators=100, weak_learner_cls=DecisionStump)
-model.fit(X, y)
-
-# Dự đoán
-y_pred = model.predict(X_test)
+```text
+code/
+├── requirements.txt                # Danh sách thư viện
+├── README.md
+│
+├── src/                            # Chứa mã nguồn cài đặt thuật toán
+│   ├── base.py                     # Abstract class `BaseWeakLearner` định nghĩa interface chung.
+│   ├── decision_stump.py           # Cài đặt thuật toán Cây quyết định 1 mức từ đầu.
+│   └── adaboost.py                 # Cài đặt vòng lặp Boosting.
+│
+└── experiments/                    # Chứa các scripts chạy thực nghiệm
+    ├── exp_error_curve.py          # Kiểm chứng sự hội tụ của Training Error và Theory Bound.
+    ├── exp_margin_hist.py          # Vẽ Histogram phân bố Margin tại các mốc T khác nhau.
+    ├── exp_decision_boundary.py    # Vẽ decision boundary.
+    └── figures/                    # Chứa các file biểu đồ kết quả.
 ```
 
----
+## 3. Hướng dẫn chạy code thực nghiệm
 
-## 2.1 – Base Learner: Decision Stump
+Tất cả các file thực nghiệm đều được thiết kế độc lập và tự động sinh dữ liệu ảo (make_moons), huấn luyện mô hình, và xuất biểu đồ ra định dạng `.pdf` lưu vào thư mục `experiments/figures/`.
 
-### `base.py`
-Abstract class `BaseWeakLearner` định nghĩa interface chung:
-- `fit(X, y, sample_weight) → self` – Huấn luyện với phân bố trọng số D_t
-- `predict(X) → np.ndarray ∈ {-1, +1}` – Dự đoán nhãn
-- property `error` → weighted error ε_t
+Có thể đứng ở thư mục gốc (thư mục chứa file README này) và chạy lần lượt các lệnh sau:
 
-### `decision_stump.py`
-`DecisionStump` kế thừa `BaseWeakLearner` và cài đặt cây quyết định 1 mức (depth-1):
-
-- `fit()` duyệt qua tất cả features `j = 0…d-1`
-- Với mỗi feature, tìm threshold ứng viên (midpoints của giá trị phân biệt)
-- Duyệt polarity (+1/-1) để tìm rule có **weighted error nhỏ nhất**
-- Lưu `self.error` để AdaBoost dùng tính α_t
-
-**Từng bước:**
+**Thực nghiệm 1: Sự hội tụ của Training Error**
+```bash
+python experiments/exp_error_curve.py
 ```
-min_err = Inf
-for j in features:
-  for thresh in thresholds:
-    for polarity in (+1, -1):
-      preds = (X[:, j] < thresh) ? 1 : -1
-      if polarity == -1: preds = -preds
-      err = sum(D * (preds != y))
-      if err < min_err:
-        min_err = err
-        best_j, best_thresh, best_polarity = j, thresh, polarity
+> Kiểm chứng lý thuyết rằng AdaBoost tối thiểu hoá upper bound cho Training Error.
+
+**Thực nghiệm 2: Phân bố Margin**
+```bash
+python experiments/exp_margin_hist.py
 ```
+> Histogram để minh hoạ Margin Theory: phân bố margin của các điểm huấn luyện khi T tăng.
 
-## 2.2 – AdaBoost Core
+**Thực nghiệm 3: Ranh giới quyết định**
+```bash
+python experiments/exp_decision_boundary.py
+```
+>Vẽ ranh giới phân lớp tại T = 1, 5, 20, 100 để thấy rõ cách AdaBoost kết hợp nhiều Decision Stump lại thành một ranh giới phức tạp.
 
-### `adaboost.py`
-`AdaBoost` cài đặt vòng lặp T bước chuẩn:
-
-| Bước | Công thức |
-|---|---|
-| Khởi tạo | $D_1(i) = 1/n$ |
-| Huấn luyện | $h_t \sim D_t$ (gọi `weak_learner.fit`) |
-| Weighted error | $\varepsilon_t = \sum_i D_t(i) \cdot \mathbf{1}[h_t(x_i) \neq y_i]$ |
-| Learner weight | $\alpha_t = \frac{1}{2}\ln\frac{1-\varepsilon_t}{\varepsilon_t}$ |
-| Normaliser | $Z_t = 2\sqrt{\varepsilon_t(1-\varepsilon_t)}$ |
-| Update D | $D_{t+1}(i) = D_t(i)\cdot e^{-\alpha_t y_i h_t(x_i)} / Z_t$ |
-
-- Cập nhật D **vectorized** (không for-loop trên samples)
-- Training error tính bằng `f_accum` (cộng dồn) - không recompute từ đầu
-- Lưu `theory_bounds_` = $\prod Z_t$ tích luỹ cho kiểm chứng lý thuyết (sẽ dùng trong 2.3)
-- `decision_function()` dùng `alphas @ preds` (matrix multiply) thay for-loop
-- `staged_predict()` là generator cộng dồn, hiệu quả hơn gọi `predict(up_to=t)` lặp T lần
-
----
-
+Sau khi chạy xong, toàn bộ hình vẽ sẽ nằm sẵn trong `experiments/figures/`.

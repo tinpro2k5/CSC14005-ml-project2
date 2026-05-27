@@ -1,22 +1,22 @@
 """
-exp_24_margin_hist.py
+exp_margin_hist.py
 ---------------------
-Thực nghiệm 2.4 – Kiểm chứng Margin Theory (Histogram Margin)
+Thực nghiệm: Kiểm chứng Margin Theory (Histogram Margin)
 
-Yêu cầu đồ án:
+Yêu cầu:
   - Theo dõi phân bố Margin tại T = 10, 50, 100
   - Vẽ Histogram của Margin
   - Nhận xét: Margin có thực sự tăng khi T tăng không?
     (Nếu khớp lý thuyết, cần nhấn mạnh trong báo cáo)
 
 Nội dung:
-  - Dùng cùng dataset với 2.3 (make_moons, seed=42)
+  - Dùng cùng dataset (make_moons, seed=42)
   - Tại mỗi mốc T = 10, 50, 100, tính margin của từng điểm train:
         ρ(x_i) = y_i · f(x_i) / Σ|α_t|
     Dùng model.decision_function(X, up_to=T) và model.alphas_[:T]
   - Vẽ 4 subplot histogram (T=1 thêm để thấy rõ sự thay đổi từ đầu)
   - Đánh dấu đường margin = 0, vẽ đường mean margin
-  - Xuất PDF vào figures/margin_histogram.pdf
+  - Xuất hình vào figures/margin_histogram.pdf
 """
 
 import sys

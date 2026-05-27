@@ -1,20 +1,19 @@
 """
-exp_25_decision_boundary.py
+exp_decision_boundary.py
 ---------------------------
-Thực nghiệm 2.5 – Ranh giới quyết định (Decision Boundary)
+Thực nghiệm: Ranh giới quyết định (Decision Boundary)
 
-Yêu cầu đồ án:
+Yêu cầu:
   - Plot dữ liệu 2D, vẽ Decision Boundary tại T = 1, 5, 20, 100
   - Minh họa cách mô hình dần thích nghi với dữ liệu phức tạp
-  - Nhúng code sinh đồ thị vào báo cáo LaTeX bằng lstlisting
 
 Nội dung:
-  - Dùng cùng dataset với 2.3 và 2.4 (make_moons, seed=42)
+  - Dùng cùng dataset (make_moons, seed=42)
   - Train AdaBoost T=100 vòng (1 lần duy nhất)
   - Tại T = 1, 5, 20, 100 dùng model.predict(X, up_to=T) để vẽ boundary
     bằng kỹ thuật meshgrid → contourf
   - Mỗi subplot ghi rõ: T, train error, test error tại mốc đó
-  - Xuất PDF vào figures/decision_boundary.pdf
+  - Xuất hình vào figures/decision_boundary.pdf
 """
 
 import sys
@@ -126,14 +125,15 @@ def plot_decision_boundaries(model        : AdaBoost,
     )
 
     for ax, T in zip(axes, T_CHECKPOINTS):
-        # ── Dự đoán trên meshgrid ──
-        Z = model.predict(grid, up_to=T).reshape(xx.shape)   # (H, W)
+        # ── Dự đoán score liên tục trên meshgrid (tạo đường cong mượt) ──
+        scores = model.decision_function(grid, up_to=T).reshape(xx.shape)  # (H, W)
+        Z = np.sign(scores)  # Dùng sign để tô màu 2 vùng rời rạc
 
         # ── Vùng màu nền (decision region) ──
         ax.contourf(xx, yy, Z, alpha=0.35, cmap=cmap_bg)
 
-        # ── Ranh giới quyết định (đường contour Z=0) ──
-        ax.contour(xx, yy, Z, levels=[0],
+        # ── Ranh giới quyết định (đường contour f(x)=0) ──
+        ax.contour(xx, yy, scores, levels=[0],
                    colors='black', linewidths=1.5)
 
         # ── Scatter điểm train ──
